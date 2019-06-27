@@ -55,7 +55,7 @@ def get_page(page=1):
     return res
 
 
-@periodic_task(run_every=crontab(minute='*/1'),
+@periodic_task(run_every=crontab(minute='*/10'),
                autoretry_for=(InternetConnectionError,),
                default_retry_delay=10,
                name='get_new_events',

@@ -16,19 +16,19 @@ services:
       dockerfile: ./bin/app.dockerfile
     ports:
      - 8100:8000
-     - 8200:8100
     volumes:
      - ./app:/opt/application
     environment:
       CONTAINER_ROLE: app
       APP_MIGRATE: 1
       APP_CREATE_SUPERUSER: 1
-      WAIT_HOSTS: database:5432
+      WAIT_HOSTS: database:5432,rabbitmq:5672,elasticsearch:9200
     env_file:
       - .env
     depends_on:
       - database
       - rabbitmq
+      - elasticsearch
 
   # Worker
   service-worker:
@@ -39,12 +39,13 @@ services:
      - ./app:/opt/application
     environment:
       CONTAINER_ROLE: worker
-      WAIT_HOSTS: rabbitmq:5672,database:5432
+      WAIT_HOSTS: rabbitmq:5672,database:5432,elasticsearch:9200
     env_file:
       - .env
     depends_on:
       - rabbitmq
       - database
+      - elasticsearch
 
   # Monitor
   service-monitor:

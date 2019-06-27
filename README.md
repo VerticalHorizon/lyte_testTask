@@ -51,4 +51,7 @@ EVENTBRITE_SEARCH_WITHIN=15km
     - /api/events           [GET]
     - /api/events/<pk>/     [GET, PUT]
     - /api/events/search/   [POST]  (You can find examples in ./requests)
+    - /api/signin/          [POST with username & password (json)]
+    - /api/refresh/         [POST with token (json)]
+    - /api/verify/          [POST with token (json)]
     - /admin/               (as usual :) )
