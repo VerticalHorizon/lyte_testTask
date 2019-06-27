@@ -1,0 +1,30 @@
+POST http://0.0.0.0:8100/api/events/search/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "organizer_name": "cal"
+}
+
+###
+
+POST http://0.0.0.0:8100/api/events/search/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "start": ">=2019-11-27",
+  "end": "<2019-12-06"
+}
+
+###
+
+POST http://0.0.0.0:8100/api/events/search/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "maximum_ticket_price": "<25.00"
+}
+
+###

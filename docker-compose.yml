@@ -1,0 +1,86 @@
+version: '3'
+services:
+
+  # The Database
+  database:
+    image: postgres:11-alpine
+    environment:
+      - POSTGRES_DB=lyte_app
+      - POSTGRES_USER=lyte_user
+      - POSTGRES_PASSWORD=secret
+
+  # Application
+  service-api:
+    build:
+      context: .
+      dockerfile: ./bin/app.dockerfile
+    ports:
+     - 8100:8000
+     - 8200:8100
+    volumes:
+     - ./app:/opt/application
+    environment:
+      CONTAINER_ROLE: app
+      APP_MIGRATE: 1
+      APP_CREATE_SUPERUSER: 1
+      WAIT_HOSTS: database:5432
+    env_file:
+      - .env
+    depends_on:
+      - database
+      - rabbitmq
+
+  # Worker
+  service-worker:
+    build:
+      context: .
+      dockerfile: ./bin/app.dockerfile
+    volumes:
+     - ./app:/opt/application
+    environment:
+      CONTAINER_ROLE: worker
+      WAIT_HOSTS: rabbitmq:5672,database:5432
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - database
+
+  # Monitor
+  service-monitor:
+    build:
+      context: .
+      dockerfile: ./bin/app.dockerfile
+    ports:
+     - 15555:5555
+    volumes:
+     - ./app:/opt/application
+    environment:
+      CONTAINER_ROLE: monitor
+      WAIT_HOSTS: rabbitmq:5672
+      FLOWER_BASIC_AUTH: flower:secret
+      FLOWER_CONF: app/flower.py
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+
+  # ElasticSearch
+  elasticsearch:
+    image: elasticsearch:7.1.1
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.7-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=lyte_user
+      - RABBITMQ_DEFAULT_PASS=secret
+
+  # TODO: add nginx for serving static
